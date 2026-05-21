@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer wave ring in alpha cyan -->
+    <path
+        android:fillColor="#1500ADB5"
+        android:pathData="M54,54m-38,0a38,38 0,1 1,76 0a38,38 0,1 1,-76 0" />
+        
+    <!-- Inner ripple wave ring in alpha cyan -->
+    <path
+        android:fillColor="#3000ADB5"
+        android:pathData="M54,54m-26,0a26,26 0,1 1,52 0a26,26 0,1 1,-52 0" />
+
+    <!-- Center Microphone Stand -->
+    <path
+        android:strokeWidth="4"
+        android:strokeColor="#00ADB5"
+        android:strokeLineCap="round"
+        android:pathData="M54,64 L54,73" />
+    <path
+        android:strokeWidth="4"
+        android:strokeColor="#00ADB5"
+        android:strokeLineCap="round"
+        android:pathData="M46,73 L62,73" />
+        
+    <!-- U-shape collar -->
+    <path
+        android:strokeWidth="3.5"
+        android:strokeColor="#00ADB5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M43,49 C43,60 65,60 65,49" />
+        
+    <!-- Microphone head container -->
+    <path
+        android:fillColor="#00ADB5"
+        android:pathData="M48,37 C48,32 60,32 60,37 L60,49 C60,54 48,54 48,49 Z" />
+        
+    <!-- Horizontal mesh details -->
+    <path
+        android:strokeWidth="1.5"
+        android:strokeColor="#0E1520"
+        android:pathData="M49,41L59,41 M49,45L59,45" />
+</vector>

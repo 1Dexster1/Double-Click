@@ -1,0 +1,6 @@
+{
+  "name": "EchoClick",
+  "description": "مسجل صوت احترافي يتيح بدء وإيقاف التسجيل في الخلفية بكبسة مزدوجة لزر رفع الصوت حتى والشاشة مغلقة.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

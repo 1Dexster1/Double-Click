@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">EchoClick</string>
+    <string name="accessibility_service_label">تفعيل تسجيل كبسة الصوت (EchoClick)</string>
+    <string name="accessibility_service_description">يسمح هذا الإذن للتطبيق بلقط ضغطات أزرار الصوت لتسجيل الصوت كتم غلق الهاتف من زر الصوت.</string>
+</resources>
