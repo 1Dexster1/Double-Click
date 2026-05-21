@@ -12,6 +12,7 @@ import android.content.pm.ServiceInfo
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
@@ -34,6 +35,7 @@ class RecordingService : Service() {
     private var recordingStartTime = 0L
     private var timerJob: Job? = null
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -117,6 +119,18 @@ class RecordingService : Service() {
 
             startTimer()
             triggerVibration("start")
+
+            // Acquire wake lock to keep CPU active during recording when screen is locked
+            try {
+                val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
+                wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "EchoClick::RecordingWakeLock")?.apply {
+                    acquire(20 * 60 * 1000L) // 20 minutes maximum safety limit
+                }
+                Log.d(TAG, "WakeLock acquired successfully")
+            } catch (ex: Exception) {
+                Log.e(TAG, "Failed to acquire WakeLock", ex)
+            }
+
             Log.d(TAG, "Recording started: ${currentRecordingFile!!.absolutePath}")
 
         } catch (e: Exception) {
@@ -165,6 +179,9 @@ class RecordingService : Service() {
                 withContext(Dispatchers.Main) {
                     RecordingState.lastSavedRecordingName.value = fileName
                 }
+                
+                // Show notification to user that the recording was saved
+                showSavedNotification(fileName)
             }
             Log.d(TAG, "Recording saved: $fileName ($durationMs ms)")
         } else {
@@ -173,6 +190,19 @@ class RecordingService : Service() {
                 file.delete()
             }
             Log.d(TAG, "Recording stopped but not saved (too short or failed)")
+        }
+
+        // Safely release WakeLock if held
+        try {
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception releasing WakeLock", e)
+        } finally {
+            wakeLock = null
         }
 
         RecordingState.isRecording.value = false
@@ -295,6 +325,48 @@ class RecordingService : Service() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to execute vibration feedback", e)
+        }
+    }
+
+    private fun showSavedNotification(fileName: String) {
+        try {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val savedNotificationId = 8813
+            val savedChannelId = "recording_saved_channel"
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val savedChannel = NotificationChannel(
+                    savedChannelId,
+                    "Saved Voice Recordings",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply {
+                    description = "Notifications received when a quiet background recording has been successfully saved."
+                }
+                notificationManager.createNotificationChannel(savedChannel)
+            }
+
+            val mainIntent = Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val mainPendingIntent = PendingIntent.getActivity(
+                this,
+                2,
+                mainIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = NotificationCompat.Builder(this, savedChannelId)
+                .setContentTitle("Recording Saved Successfully")
+                .setContentText("Voice note saved: $fileName")
+                .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                .setAutoCancel(true)
+                .setContentIntent(mainPendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .build()
+
+            notificationManager.notify(savedNotificationId, notification)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to show saved notification", e)
         }
     }
 

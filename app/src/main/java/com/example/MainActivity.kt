@@ -701,56 +701,6 @@ fun EchoClickApp(
                     }
                 }
             }
-        } else {
-            // Success Card showing Active and Listening styled in beautiful bento theme
-            Card(
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE6F7ED),
-                ),
-                border = BorderStroke(1.dp, Color(0xFFC4EED0)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Volume listener active in background",
-                            color = Color(0xFF137333),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            text = "You can now lock your device and double-press the Volume Up key to start/stop quiet recordings.",
-                            color = Color(0xFF137333).copy(alpha = 0.8f),
-                            fontSize = 11.sp,
-                            lineHeight = 15.sp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Button(
-                        onClick = { triggerPermissionCheck++ },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF137333)),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        modifier = Modifier.height(34.dp)
-                    ) {
-                        Text("Refresh", color = Color.White, fontSize = 11.sp)
-                    }
-                }
-            }
         }
 
         // Section Title: Saved audio clips
