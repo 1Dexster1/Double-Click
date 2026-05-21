@@ -1,7 +1,10 @@
 package com.example.service
 
 import android.accessibilityservice.AccessibilityService
+import android.app.KeyguardManager
+import android.content.Context
 import android.content.Intent
+import android.os.PowerManager
 import android.util.Log
 import android.view.KeyEvent
 import androidx.core.content.ContextCompat
@@ -17,6 +20,18 @@ class VolumeButtonAccessibilityService : AccessibilityService() {
         // We only care about Volume Up key presses
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             if (action == KeyEvent.ACTION_DOWN) {
+                // Restrict triggering: Only run when screen is off (non-interactive) or keyguard is locked.
+                val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
+                val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+
+                val isInteractive = powerManager?.isInteractive ?: true
+                val isLocked = keyguardManager?.isKeyguardLocked ?: false
+
+                if (isInteractive && !isLocked) {
+                    Log.d(TAG, "Device is unlocked & interactive. Letting standard volume change handle normally.")
+                    return super.onKeyEvent(event)
+                }
+
                 val currentTime = System.currentTimeMillis()
                 val timeDifference = currentTime - lastVolumeUpPressTime
 
@@ -25,7 +40,7 @@ class VolumeButtonAccessibilityService : AccessibilityService() {
                 if (timeDifference < DOUBLE_PRESS_INTERVAL_MS) {
                     // Double-press detected!
                     lastVolumeUpPressTime = 0L // Reset
-                    Log.d(TAG, "SUCCESS: Double Volume Up detected. Triggering Recording Toggle!")
+                    Log.d(TAG, "SUCCESS: Double Volume Up detected on locked/off screen. Triggering Recording Toggle!")
                     triggerRecordingToggle()
                     return true // Swallow this second keypress event completely!
                 }

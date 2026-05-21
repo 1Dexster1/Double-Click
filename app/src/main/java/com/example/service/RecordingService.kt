@@ -12,6 +12,8 @@ import android.content.pm.ServiceInfo
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.IBinder
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -114,6 +116,7 @@ class RecordingService : Service() {
             }
 
             startTimer()
+            triggerVibration("start")
             Log.d(TAG, "Recording started: ${currentRecordingFile!!.absolutePath}")
 
         } catch (e: Exception) {
@@ -175,6 +178,7 @@ class RecordingService : Service() {
         RecordingState.isRecording.value = false
         RecordingState.recordingDurationSec.value = 0
         currentRecordingFile = null
+        triggerVibration("stop")
 
         stopForeground(true)
         stopSelf()
@@ -260,6 +264,39 @@ class RecordingService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    private fun triggerVibration(patternType: String) {
+        try {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? android.os.VibratorManager
+                vibratorManager?.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+            }
+
+            if (vibrator != null && vibrator.hasVibrator()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (patternType == "start") {
+                        // Two crisp high-tempo haptic clicks for starting
+                        vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 100, 120, 100), -1))
+                    } else {
+                        // One long solid haptic pulse for saving/stopping
+                        vibrator.vibrate(VibrationEffect.createOneShot(350, VibrationEffect.DEFAULT_AMPLITUDE))
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    if (patternType == "start") {
+                        vibrator.vibrate(longArrayOf(0, 100, 120, 100), -1)
+                    } else {
+                        vibrator.vibrate(350)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to execute vibration feedback", e)
+        }
+    }
 
     override fun onDestroy() {
         stopTimer()
