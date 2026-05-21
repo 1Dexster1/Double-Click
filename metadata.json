@@ -1,6 +1,6 @@
 {
   "name": "EchoClick",
-  "description": "مسجل صوت احترافي يتيح بدء وإيقاف التسجيل في الخلفية بكبسة مزدوجة لزر رفع الصوت حتى والشاشة مغلقة.",
+  "description": "A professional background audio recorder that starts and stops recording instantly by double-pressing the Volume Up button, even when the screen is locked.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

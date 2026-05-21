@@ -229,15 +229,15 @@ class RecordingService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("جاري تسجيل الصوت...")
-            .setContentText("مدة التسجيل: $formattedTime - اضغطي هنا للفتح")
+            .setContentTitle("Recording Audio...")
+            .setContentText("Duration: $formattedTime - Tap to open")
             .setSmallIcon(android.R.drawable.presence_video_busy) // Red recording circle
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setContentIntent(mainPendingIntent)
             .addAction(
                 android.R.drawable.ic_media_pause,
-                "إيقاف وحفظ",
+                "Stop and Save",
                 stopPendingIntent
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -249,10 +249,10 @@ class RecordingService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
-                "مسجل الصوت في الخلفية",
+                "Background Recording Service",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "تنبيهات جارية للتحكم في عملية تسجيل الصوت بالخلفية"
+                description = "Ongoing controller notifications for background capture"
             }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)

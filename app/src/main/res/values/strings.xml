@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">EchoClick</string>
-    <string name="accessibility_service_label">تفعيل تسجيل كبسة الصوت (EchoClick)</string>
-    <string name="accessibility_service_description">يسمح هذا الإذن للتطبيق بلقط ضغطات أزرار الصوت لتسجيل الصوت كتم غلق الهاتف من زر الصوت.</string>
+    <string name="accessibility_service_label">Volume Key Listener (EchoClick)</string>
+    <string name="accessibility_service_description">This permission is required to detect double-presses of the Volume Up key for background audio capture.</string>
 </resources>

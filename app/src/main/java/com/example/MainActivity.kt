@@ -141,7 +141,7 @@ class MainViewModel(private val repository: RecordingRepository) : ViewModel() {
 
         val file = File(recording.filePath)
         if (!file.exists()) {
-            Toast.makeText(context, "الملف غير موجود أو تم حذفه!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "File not found or deleted", Toast.LENGTH_SHORT).show()
             viewModelScope.launch {
                 repository.delete(recording.id)
             }
@@ -164,7 +164,7 @@ class MainViewModel(private val repository: RecordingRepository) : ViewModel() {
             }
         } catch (e: Exception) {
             Log.e("ViewModel", "Failed to play audio", e)
-            Toast.makeText(context, "خطأ أثناء تشغيل الملف الصوتي", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error playing audio file", Toast.LENGTH_SHORT).show()
             stopAudio()
         }
     }
@@ -251,11 +251,11 @@ class MainViewModel(private val repository: RecordingRepository) : ViewModel() {
                             filePath = newFile.absolutePath
                         )
                     )
-                    Toast.makeText(context, "تم تعديل اسم الملف بنجاح", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "File renamed successfully", Toast.LENGTH_SHORT).show()
                 } else {
                     // Update database metadata representation even if physical renaming falls back
                     repository.update(recording.copy(fileName = "$sanitized.m4a"))
-                    Toast.makeText(context, "تم التعديل محلياً", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Renamed locally", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Log.e("ViewModel", "Renaming failed", e)
@@ -280,7 +280,7 @@ class MainViewModel(private val repository: RecordingRepository) : ViewModel() {
             }
 
             repository.delete(recording.id)
-            Toast.makeText(context, "تم حذف التسجيل بنجاح", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Recording deleted successfully", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -358,7 +358,7 @@ fun EchoClickApp(
     // Capture background save notifications to report on the screen
     LaunchedEffect(lastSavedRecordingName) {
         lastSavedRecordingName?.let {
-            Toast.makeText(context, "تم حفظ التسجيل بنجاح باسم: $it", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Recording saved successfully: $it", Toast.LENGTH_LONG).show()
             RecordingState.lastSavedRecordingName.value = null
         }
     }
@@ -369,9 +369,9 @@ fun EchoClickApp(
     ) { granted ->
         hasMicPermission = granted
         if (granted) {
-            Toast.makeText(context, "تم منح إذن المايكروفون", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Microphone permission granted", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(context, "يتطلب التطبيق هذا الإذن لتسجيل الصوت!", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Microphone permission is required to record audio!", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -426,7 +426,7 @@ fun EchoClickApp(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Mic,
-                        contentDescription = "المايك المزدوج",
+                        contentDescription = "Dual Microphone",
                         tint = bentoTextPrimary,
                         modifier = Modifier.size(24.dp)
                     )
@@ -441,7 +441,7 @@ fun EchoClickApp(
                         modifier = Modifier.testTag("app_logo_title")
                     )
                     Text(
-                        text = "دوبل كليك لتسجيل سريع واحترافي",
+                        text = "Double-click key listener for rapid recording",
                         color = bentoTextDark.copy(alpha = 0.6f),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
@@ -459,7 +459,7 @@ fun EchoClickApp(
             ) {
                 Icon(
                     imageVector = if (showFavoriteFilterOnly) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = "تصفية المفضلات",
+                    contentDescription = "Filter favorites",
                     tint = if (showFavoriteFilterOnly) recordingRed else bentoTextPrimary
                 )
             }
@@ -532,13 +532,13 @@ fun EchoClickApp(
                     }
                     Column {
                         Text(
-                            text = "الشاشة مغلقة",
+                            text = "Screen Locked",
                             color = bentoTextDark.copy(alpha = 0.5f),
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp
                         )
                         Text(
-                            text = "يعمل من قفل الهاتف",
+                            text = "Background listening",
                             color = bentoTextDark,
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp
@@ -577,13 +577,13 @@ fun EchoClickApp(
                     }
                     Column {
                         Text(
-                            text = "سرعة الاستجابة",
+                            text = "Response Time",
                             color = bentoTextDark.copy(alpha = 0.5f),
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp
                         )
                         Text(
-                            text = "حسية غضون 0.6ث",
+                            text = "Triggers within 0.6s",
                             color = bentoTextDark,
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp
@@ -610,18 +610,17 @@ fun EchoClickApp(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "⚠️ خطوات التفعيل والتهيئة المهمة:",
+                        text = "Required Setup Steps",
                         color = Color(0xFFA55200),
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        textAlign = TextAlign.Right,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Step 1: Microphone Permission
                     InteractiveCheckRow(
-                        label = "منح صلاحية المايكروفون والتسجيل",
+                        label = "Grant Microphone Permission",
                         isValid = hasMicPermission,
                         onClick = { micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) }
                     )
@@ -630,8 +629,8 @@ fun EchoClickApp(
 
                     // Step 2: Accessibility Setting Helper
                     InteractiveCheckRow(
-                        label = "تفعيل خدمة رفع الصوت (EchoClick)",
-                        subtitle = "اضغطي هنا وسيفتح الإعداد لمستمع كبسة الصوت",
+                        label = "Enable Volume Listener (EchoClick)",
+                        subtitle = "Tap to configure accessibility service",
                         isValid = isAccessibilityServiceOn,
                         onClick = {
                             try {
@@ -639,7 +638,7 @@ fun EchoClickApp(
                                 context.startActivity(intent)
                                 triggerPermissionCheck++
                             } catch (e: Exception) {
-                                Toast.makeText(context, "الرجاء فتح إعدادات سهولة الوصول يدوياً", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Please open Accessibility Settings manually", Toast.LENGTH_LONG).show()
                             }
                         }
                     )
@@ -648,9 +647,56 @@ fun EchoClickApp(
                         Spacer(modifier = Modifier.height(8.dp))
                         // Step 3: Notification permission (Android 13+)
                         InteractiveCheckRow(
-                            label = "إذن الإشعارات (للتحكم بالخارجية)",
+                            label = "Allow System Notifications",
                             isValid = hasNotificationPermission,
                             onClick = { notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+                        )
+                    }
+                }
+            }
+
+            // Android 13+ Restricted Setting Workaround Card
+            if (!isAccessibilityServiceOn) {
+                Card(
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFF1F5F9),
+                    ),
+                    border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = Color(0xFF475569),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Restricted Setting Guide (Android 13+)",
+                                color = Color(0xFF1E293B),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "If Android blocks the service with a \"Restricted setting\" alert, please follow these steps to unlock it:",
+                            color = Color(0xFF475569),
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "1. Go back to your device home screen.\n2. Long-press the EchoClick app icon and tap \"App Info\" (or go to Settings > Apps > EchoClick).\n3. Tap the 3-dots menu icon at the top right corner.\n4. Select \"Allow restricted settings\".\n5. Authenticate with your PIN/fingerprint, then return here and enable the service.",
+                            color = Color(0xFF475569),
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -676,19 +722,17 @@ fun EchoClickApp(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "🟢 ميزة كبستين الصوت نشطة بالخلفية",
+                            text = "Volume listener active in background",
                             color = Color(0xFF137333),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            textAlign = TextAlign.Right,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Text(
-                            text = "يمكنك قفل الجهاز والضغط ضغطاً مزدوجاً على زر رفع الصوت لبدء التسجيل سرياً بنجاح.",
+                            text = "You can now lock your device and double-press the Volume Up key to start/stop quiet recordings.",
                             color = Color(0xFF137333).copy(alpha = 0.8f),
                             fontSize = 11.sp,
                             lineHeight = 15.sp,
-                            textAlign = TextAlign.Right,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp)
@@ -703,7 +747,7 @@ fun EchoClickApp(
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                         modifier = Modifier.height(34.dp)
                     ) {
-                        Text("تحديث", color = Color.White, fontSize = 11.sp)
+                        Text("Refresh", color = Color.White, fontSize = 11.sp)
                     }
                 }
             }
@@ -711,11 +755,10 @@ fun EchoClickApp(
 
         // Section Title: Saved audio clips
         Text(
-            text = if (showFavoriteFilterOnly) "⭐ التسجيلات المهمة المفضلّة" else "📁 أرشيف التسجيلات الصوتية المتوفرة",
+            text = if (showFavoriteFilterOnly) "Starred Recordings" else "Recorded Audio Clips",
             color = bentoTextPrimary,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
-            textAlign = TextAlign.Right,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 10.dp)
@@ -769,10 +812,9 @@ fun EchoClickApp(
             onDismissRequest = { showRenameDialogFor = null },
             title = {
                 Text(
-                    text = "تعديل اسم التسجيل",
+                    text = "Rename Recording",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    textAlign = TextAlign.Right,
                     modifier = Modifier.fillMaxWidth()
                 )
             },
@@ -781,7 +823,7 @@ fun EchoClickApp(
                     value = renameInputVal,
                     onValueChange = { renameInputVal = it },
                     singleLine = true,
-                    label = { Text("اسم الملف الجديد") },
+                    label = { Text("New file name") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("rename_text_field")
@@ -795,12 +837,12 @@ fun EchoClickApp(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = primaryBlue)
                 ) {
-                    Text("حفظ الاسم")
+                    Text("Save")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showRenameDialogFor = null }) {
-                    Text("إلغاء")
+                    Text("Cancel")
                 }
             },
             shape = RoundedCornerShape(16.dp)
@@ -826,7 +868,7 @@ fun InteractiveCheckRow(
     ) {
         Icon(
             imageVector = if (isValid) Icons.Filled.CheckCircle else Icons.Filled.Info,
-            contentDescription = "حالة الشرط",
+            contentDescription = "Status",
             tint = if (isValid) Color(0xFF1E8E3E) else Color(0xFFE8710A),
             modifier = Modifier.size(22.dp)
         )
@@ -839,7 +881,6 @@ fun InteractiveCheckRow(
                 color = if (isValid) Color(0xFF137333) else Color(0xFFB06000),
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
-                textAlign = TextAlign.Right,
                 modifier = Modifier.fillMaxWidth()
             )
             subtitle?.let {
@@ -847,7 +888,6 @@ fun InteractiveCheckRow(
                     text = it,
                     color = if (isValid) Color(0xFF137333).copy(alpha = 0.7f) else Color(0xFFB06000).copy(alpha = 0.7f),
                     fontSize = 11.sp,
-                    textAlign = TextAlign.Right,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -892,7 +932,7 @@ fun RecordingPulseWaveScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "🔴 جاري تسجيل الصوت حالياً بالخلفية",
+                text = "Recording Audio in Background",
                 color = activeRed,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
@@ -928,7 +968,7 @@ fun RecordingPulseWaveScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Stop,
-                        contentDescription = "إيقاف وحفظ",
+                        contentDescription = "Stop and Save",
                         tint = Color.White,
                         modifier = Modifier.size(32.dp)
                     )
@@ -938,7 +978,7 @@ fun RecordingPulseWaveScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "$dynamicTime ثانية",
+                text = "$dynamicTime",
                 color = Color(0xFF1B1B1F),
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
@@ -946,7 +986,7 @@ fun RecordingPulseWaveScreen(
             )
 
             Text(
-                text = "اضغطي الكبسة الحمراء السابقة للإيقاف، أو كبستين متتاليتين على زر الصوت مرة أخرى.",
+                text = "Tap the stop button or double-press the Volume Up key to finish recording.",
                 color = Color(0xFF534343),
                 fontSize = 11.sp,
                 textAlign = TextAlign.Center,
@@ -999,7 +1039,7 @@ fun ReadyStateCard(primaryBlue: Color) {
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "نشط ومستعد",
+                        text = "Active & Ready",
                         color = Color.White,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
@@ -1009,7 +1049,7 @@ fun ReadyStateCard(primaryBlue: Color) {
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = "مسلح ويبحث عن كبسة الصوت 🎧",
+                    text = "Service Armed",
                     color = Color(0xFF041E49),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
@@ -1018,7 +1058,7 @@ fun ReadyStateCard(primaryBlue: Color) {
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "اضغطي مرتين على زر رفع الصوت (Volume Up) لبدء التسجيل السريع فوراً وسراً حتى لو الشاشة مغلقة.",
+                    text = "Double-click the Volume Up key to start/stop quiet background recording instantly, even when the screen is locked.",
                     color = Color(0xFF041E49).copy(alpha = 0.75f),
                     fontSize = 12.sp,
                     lineHeight = 16.sp
@@ -1081,7 +1121,7 @@ fun RecordingItemCard(
                 ) {
                     Icon(
                         imageVector = if (isActivePlayer && isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                        contentDescription = "تشغيل أو إيقاف مؤقت",
+                        contentDescription = "Play/Pause",
                         tint = if (isActivePlayer && isPlaying) primaryAccent else Color(0xFF334155),
                         modifier = Modifier.size(24.dp)
                     )
@@ -1098,14 +1138,14 @@ fun RecordingItemCard(
                         fontSize = 14.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Right,
+                        textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text(
                         text = "$recordingDateString  •  ${formatDuration(recording.durationMs)}",
                         color = Color(0xFF64748B),
                         fontSize = 11.sp,
-                        textAlign = TextAlign.Right,
+                        textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -1114,7 +1154,7 @@ fun RecordingItemCard(
                 IconButton(onClick = onFavoriteToggle) {
                     Icon(
                         imageVector = if (recording.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "تفضيل",
+                        contentDescription = "Favorite",
                         tint = if (recording.isFavorite) recordingRed else Color(0xFF94A3B8),
                         modifier = Modifier.size(20.dp)
                     )
@@ -1176,7 +1216,7 @@ fun RecordingItemCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.Start
             ) {
                 // Share
                 TextButton(
@@ -1186,12 +1226,12 @@ fun RecordingItemCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "مشاركة",
+                        contentDescription = "Share",
                         tint = Color(0xFF475569),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("مشاركة", color = Color(0xFF475569), fontSize = 11.sp)
+                    Text("Share", color = Color(0xFF475569), fontSize = 11.sp)
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -1204,12 +1244,12 @@ fun RecordingItemCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "إعادة تسمية",
+                        contentDescription = "Rename",
                         tint = Color(0xFF475569),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("تسمية", color = Color(0xFF475569), fontSize = 11.sp)
+                    Text("Rename", color = Color(0xFF475569), fontSize = 11.sp)
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -1222,12 +1262,12 @@ fun RecordingItemCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "حذف",
+                        contentDescription = "Delete",
                         tint = recordingRed.copy(alpha = 0.9f),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("حذف", color = recordingRed.copy(alpha = 0.9f), fontSize = 11.sp)
+                    Text("Delete", color = recordingRed.copy(alpha = 0.9f), fontSize = 11.sp)
                 }
             }
         }
@@ -1253,7 +1293,7 @@ fun EmptyDataState(showFavoriteState: Boolean, primaryBlue: Color) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(
                     imageVector = if (showFavoriteState) Icons.Outlined.FavoriteBorder else Icons.Outlined.MusicNote,
-                    contentDescription = "لا توجد تسجيلات",
+                    contentDescription = "No audio records",
                     tint = Color(0xFF94A3B8),
                     modifier = Modifier.size(56.dp)
                 )
@@ -1261,7 +1301,7 @@ fun EmptyDataState(showFavoriteState: Boolean, primaryBlue: Color) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = if (showFavoriteState) "لا توجد تسجيلات مفضّلة بعد!" else "أرشيف تسجيلات الصوت فارغ ياقمر 🎙️",
+                    text = if (showFavoriteState) "No starred recordings yet" else "No recordings found",
                     color = Color(0xFF334155),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
@@ -1271,7 +1311,7 @@ fun EmptyDataState(showFavoriteState: Boolean, primaryBlue: Color) {
                 if (!showFavoriteState) {
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "جرب غلق شاشة الموبايل الحين ثم اضغط (مرتين متلاحقتين) على زر الصوت الذي يرفع الصوت وستراه يسجل فوراً!",
+                        text = "Double-press the Volume Up key when setup is complete to start background recording.",
                         color = Color(0xFF64748B),
                         fontSize = 11.sp,
                         textAlign = TextAlign.Center,
@@ -1316,7 +1356,7 @@ private fun shareAudioFile(context: Context, recording: Recording) {
     try {
         val file = File(recording.filePath)
         if (!file.exists()) {
-            Toast.makeText(context, "الملف غير موجود!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Audio file not found", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -1330,9 +1370,9 @@ private fun shareAudioFile(context: Context, recording: Recording) {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
-        context.startActivity(Intent.createChooser(shareIntent, "مشاركة الملفات الصوتية عبر:"))
+        context.startActivity(Intent.createChooser(shareIntent, "Share audio file via:"))
     } catch (e: Exception) {
         Log.e("Share", "Sharing file failed", e)
-        Toast.makeText(context, "خطأ غير متوقع أثناء معالجة مشاركة الملف", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Unexpected error sharing audio file", Toast.LENGTH_SHORT).show()
     }
 }
