@@ -48,6 +48,47 @@ jobs:
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
+      id: upload-artifact
+      continue-on-error: true
       with:
         name: EchoClick-APK
         path: app/build/outputs/apk/debug/app-debug.apk
+
+    - name: Upload APK to Alternative Services (No-Quota Download Links)
+      if: always()
+      run: |
+        APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+        if [ -f "$APK_PATH" ]; then
+          echo "### 📱 APK Build Successful!" >> $GITHUB_STEP_SUMMARY
+          
+          # Upload to transfer.sh
+          echo "Uploading to transfer.sh..."
+          TRANSFER_URL=$(curl --upload-file "$APK_PATH" "https://transfer.sh/EchoClick-Debug.apk" || echo "failed")
+          
+          # Upload to file.io (expires after 1 download)
+          echo "Uploading to file.io..."
+          FILEIO_RES=$(curl -F "file=@$APK_PATH" https://file.io || echo "failed")
+          FILEIO_URL=$(echo "$FILEIO_RES" | jq -r '.link' 2>/dev/null || echo "failed")
+
+          echo "### 📥 Download Links:" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$TRANSFER_URL" != "failed" ] && [ ! -z "$TRANSFER_URL" ]; then
+            echo "- **Option 1 (Transfer.sh):** [Download EchoClick APK]($TRANSFER_URL)" >> $GITHUB_STEP_SUMMARY
+            echo "Transfer.sh URL: $TRANSFER_URL"
+          else
+            echo "- **Option 1 (Transfer.sh):** Failed to upload or server down." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "$FILEIO_URL" != "failed" ] && [ "$FILEIO_URL" != "null" ] && [ ! -z "$FILEIO_URL" ]; then
+            echo "- **Option 2 (File.io):** [Download EchoClick APK]($FILEIO_URL) *(Note: Expires after 1 download)*" >> $GITHUB_STEP_SUMMARY
+            echo "File.io URL: $FILEIO_URL"
+          else
+            echo "- **Option 2 (File.io):** Failed to upload or server down." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 *You can find these links in the Summary page of your GitHub Actions run results.*" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### ❌ APK file was not found - Build might have failed." >> $GITHUB_STEP_SUMMARY
+        fi
+
